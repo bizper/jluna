@@ -88,7 +88,7 @@ public class Node {
         return switch(type) {
             case start, define, call -> false;
             case calculate -> childrenLength() == 2;
-            case symbol, constant -> childrenLength() == 0;
+            case symbol, constant, constant_v -> childrenLength() == 0;
         };
     }
 

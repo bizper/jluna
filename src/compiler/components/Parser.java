@@ -36,14 +36,10 @@ public class Parser {
         Map<Integer, String> symbols = cage.getSymbols();
         Map<Integer, List<Token>> lines = cage.getTokens().stream().collect(Collectors.groupingBy((Token::getLine)));
         for (List<Token> singleLine : lines.values()) {
-            var status = UNDETERMINED;
-            var checker = SyntaxChecker.load(singleLine);
-            while (status == UNDETERMINED) {
-                status = checker.check();
-                if(status == PANIC) {
-                    err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
-                    return this;
-                }
+            var status = SyntaxChecker.check(singleLine);
+            if (status == UNDETERMINED) {
+                err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
+                return this;
             }
             System.out.println(readableString(singleLine, symbols) + "is " + status);
             if(status == null) {
@@ -51,7 +47,7 @@ public class Parser {
                 return this;
             }
             switch (status) {
-                case ASSIGNMENT -> root.addChild(assignPart(singleLine));
+                case ASSIGNMENT -> root.addChild(assignPart(singleLine, symbols));
                 case EXPRESSION -> root.addChild(buildExprTree(reversePolishNotation(singleLine)));
                 default -> {
                     err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
@@ -64,7 +60,7 @@ public class Parser {
         return this;
     }
 
-    private Node assignPart(List<Token> tokens) {
+    private Node assignPart(List<Token> tokens, Map<Integer, String> symbols) {
         for(Token t : tokens) {
             if(t.getType() == assign) {
                 var left = getPart(tokens, (item) -> item.getColumn() < t.getColumn());
@@ -82,7 +78,13 @@ public class Parser {
                         return null;
                     }
                 }
-                node.addChild(buildExprTree(reversePolishNotation(right)));
+                Node rp = buildExprTree(reversePolishNotation(right));
+                if(isCalculableExpression(rp)) {
+                    node.addChild(getNode(constant_v, calculateInt(rp, symbols)));
+                } else {
+                    node.addChild(rp);
+                }
+
                 return node;
             }
         }

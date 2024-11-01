@@ -10,6 +10,7 @@ public enum NodeType {
 
     //leaf node
     constant,
+    constant_v,
     symbol
 
 }

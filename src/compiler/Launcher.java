@@ -3,6 +3,7 @@ package compiler;
 import compiler.components.Parser;
 import compiler.components.Scanner;
 import compiler.components.models.*;
+import vm.Runtime;
 
 import java.io.*;
 
@@ -24,6 +25,7 @@ public class Launcher {
             System.out.println(cage.getTokens());
             System.out.println(readableString(cage.getTokens(), cage.getSymbols()));
             Parser.init(cage).parse().getCage().getRoot().printTree();
+            Runtime.load(cage);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

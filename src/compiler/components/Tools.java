@@ -1,6 +1,8 @@
 package compiler.components;
 
+import compiler.components.define.NodeType;
 import compiler.components.define.TokenType;
+import compiler.components.models.Node;
 import compiler.components.models.Token;
 
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.function.Predicate;
 
+import static compiler.components.define.NodeType.*;
 import static compiler.components.define.TokenType.*;
 
 public class Tools {
@@ -89,6 +92,37 @@ public class Tools {
             sb.append(symbols.get(token.getIndex())).append(' ');
         }
         return sb.toString();
+    }
+
+    public static boolean isCalculableExpression(Node node) {
+        if(node.getType() != NodeType.calculate && node.getType() != NodeType.constant) {
+            return false;
+        }
+        for(Node n : node.getChild()) {
+            if(!isCalculableExpression(n)) return false;
+        }
+        return true;
+    }
+
+    public static int calculateInt(Node node, Map<Integer, String> symbols) {
+        return (int) calculate(node, symbols);
+    }
+
+    public static float calculate(Node node, Map<Integer, String> symbols) {
+        if (node.getType() == calculate) {
+            return switch (node.getIndex()) {
+                case 0 -> calculate(node.getFirstChild(), symbols) + calculate(node.getLastChild(), symbols);
+                case 1 -> calculate(node.getLastChild(), symbols) - calculate(node.getFirstChild(), symbols);
+                case 2 -> calculate(node.getFirstChild(), symbols) * calculate(node.getLastChild(), symbols);
+                case 3 -> calculate(node.getLastChild(), symbols) / calculate(node.getFirstChild(), symbols);
+                default -> throw new RuntimeException("Invalid index " + node.getIndex() + " of node " + node.getType());
+            };
+        } else if (node.getType() == constant) {
+            return Float.parseFloat(symbols.get(node.getIndex()));
+        } else if (node.getType() == symbol) {
+            return Float.parseFloat(symbols.get(node.getIndex()));
+        }
+        return 0;
     }
 
     public static <T> List<T> getPart(List<T> list, Predicate<? super T> predicate) {
