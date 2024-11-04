@@ -8,11 +8,9 @@ import compiler.components.models.Token;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static compiler.components.Tools.*;
 import static compiler.components.define.NodeType.*;
-import static compiler.components.define.SyntaxStatus.*;
 import static compiler.components.define.TokenType.*;
 import static compiler.components.models.Node.getNode;
 
@@ -34,27 +32,6 @@ public class Parser {
     public Parser parse() {
         Node root = getNode(start);
         Map<Integer, String> symbols = cage.getSymbols();
-        Map<Integer, List<Token>> lines = cage.getTokens().stream().collect(Collectors.groupingBy((Token::getLine)));
-        for (List<Token> singleLine : lines.values()) {
-            var status = SyntaxChecker.check(singleLine);
-            if (status == UNDETERMINED) {
-                err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
-                return this;
-            }
-            System.out.println(readableString(singleLine, symbols) + "is " + status);
-            if(status == null) {
-                err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
-                return this;
-            }
-            switch (status) {
-                case ASSIGNMENT -> root.addChild(assignPart(singleLine, symbols));
-                case EXPRESSION -> root.addChild(buildExprTree(reversePolishNotation(singleLine)));
-                default -> {
-                    err("MAJOR ERROR HAPPENS HERE: " + readableString(singleLine, symbols));
-                    return this;
-                }
-            }
-        }
 
         cage.setRoot(root);
         return this;

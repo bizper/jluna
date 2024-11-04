@@ -4,6 +4,7 @@ import compiler.components.Parser;
 import compiler.components.Scanner;
 import compiler.components.models.*;
 import vm.Runtime;
+import yalc.Builder;
 
 import java.io.*;
 
@@ -12,6 +13,7 @@ import static compiler.components.Tools.*;
 public class Launcher {
 
     public static void main(String[] args) {
+        Builder.build();
         File file = new File("./test.luna");
         Scanner scanner = Scanner.init(file.getName().split("\\.")[0]);
         try(BufferedReader fr = new BufferedReader(new FileReader(file))) {
