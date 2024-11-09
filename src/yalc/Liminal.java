@@ -14,7 +14,7 @@ public class Liminal {
     private int _i = 0;
     private List<Token> list;
     private SyntaxStatus status = UNDETERMINED;
-    private Pattern root = getPattern();
+    private Builder builder = Builder.build();
 
     private Liminal(List<Token> list) {
         this.list = list;
@@ -28,12 +28,7 @@ public class Liminal {
      * yet another luna compiler
      */
     public void yalc() {
-
-    }
-
-    public Liminal setStatus(SyntaxStatus status) {
-        this.status = status;
-        return this;
+        this.status = SUCCESS;
     }
 
     public SyntaxStatus getStatus() {
