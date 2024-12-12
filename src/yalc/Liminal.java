@@ -29,7 +29,7 @@ public class Liminal {
      */
     public void yalc() {
         this.status = SUCCESS;
-    }
+    } 
 
     public SyntaxStatus getStatus() {
         return status;
